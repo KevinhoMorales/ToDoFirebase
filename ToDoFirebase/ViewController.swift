@@ -35,7 +35,11 @@ class ViewController: UIViewController {
     @objc
     func addTapped() {
         guard let task = addTextField.text else {return}
-        addTask(task: task)
+        let id = Int.random(in: 0..<1000000)
+        let taskModel = TaskModel()
+        taskModel.readTask = task
+        taskModel.readId = "\(id)"
+        addTask(task: taskModel)
         addTextField.text = ""
     }
     
@@ -54,19 +58,19 @@ class ViewController: UIViewController {
         }
     }
     
-    fileprivate func addTask(task: String) {
-        db.collection("kfmorales94@gmail.com").document(task).setData([
-            "task": task], merge: true)
+    fileprivate func addTask(task: TaskModel) {
+        db.collection("kfmorales94@gmail.com").document(task.readId!).setData([
+            "task": task.readTask!, "id": task.readId!], merge: true)
         readTasks()
     }
     
-    fileprivate func deleteTask(task: String) {
-        db.collection("kfmorales94@gmail.com").document(task).delete()
+    fileprivate func deleteTask(task: TaskModel) {
+        db.collection("kfmorales94@gmail.com").document(task.readId!).delete()
         readTasks()
     }
     
-    fileprivate func updateTask(task: String, newText: String) {
-        db.collection("kfmorales94@gmail.com").document(task).setData([
+    fileprivate func updateTask(task: TaskModel, newText: String) {
+        db.collection("kfmorales94@gmail.com").document(task.readId!).setData([
             "task": newText], merge: true)
         readTasks()
     }
@@ -80,17 +84,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell.init(style: .default, reuseIdentifier: "cell")
-        let task = tasksArray[indexPath.row].readTask
-        cell.textLabel?.text = task
+        let task = tasksArray[indexPath.row]
+        cell.textLabel?.text = task.readTask
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let task = tasksArray[indexPath.row].readTask
-        showInputDialog(title: "La tarea \(task!)", subtitle: nil, actionTitle: "Editar", cancelTitle: "Cancelar", inputPlaceholder: task, inputKeyboardType: .default) { _ in
+        let task = tasksArray[indexPath.row]
+        showInputDialog(title: "La tarea \(task.readTask)", subtitle: nil, actionTitle: "Editar", cancelTitle: "Cancelar", inputPlaceholder: task.readTask, inputKeyboardType: .default) { _ in
             print("Cancel")
         } actionHandler: { [self] text in
-            updateTask(task: task!, newText: text!)
+            updateTask(task: task, newText: text!)
         }
 
     }
@@ -101,8 +105,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == .delete) {
-            let task = tasksArray[indexPath.row].readTask
-            deleteTask(task: task!)
+            let task = tasksArray[indexPath.row]
+            deleteTask(task: task)
         }
     }
 }
