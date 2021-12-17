@@ -35,12 +35,16 @@ class ViewController: UIViewController {
     @objc
     func addTapped() {
         guard let task = addTextField.text else {return}
-        let id = Int.random(in: 0..<1000000)
-        let taskModel = TaskModel()
-        taskModel.readTask = task
-        taskModel.readId = "\(id)"
-        addTask(task: taskModel)
-        addTextField.text = ""
+        if task.isEmpty {
+            showAlert(message: "Agregue una tarea por favor")
+        } else {
+            let id = Int.random(in: 0..<1000000)
+            let taskModel = TaskModel()
+            taskModel.readTask = task
+            taskModel.readId = "\(id)"
+            addTask(task: taskModel)
+            addTextField.text = ""
+        }
     }
     
     fileprivate func readTasks() {
@@ -96,7 +100,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         } actionHandler: { [self] text in
             updateTask(task: task, newText: text!)
         }
-
+        
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -153,6 +157,12 @@ extension ViewController {
         }))
         alert.addAction(UIAlertAction(title: cancelTitle, style: .cancel, handler: cancelHandler))
         
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    fileprivate func showAlert(message: String) {
+        let alert = UIAlertController(title: "Aviso", message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
         self.present(alert, animated: true, completion: nil)
     }
 }
